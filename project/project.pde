@@ -8,6 +8,8 @@ Capture video;
 OpenCV opencv;
 
 PImage prevImage;
+ShimodairaOpticalFlow SOF = null;
+boolean shouldDrawFlow = false;
 
 void setup() {
   size(960, 528);
@@ -29,8 +31,16 @@ void setup() {
   println("Setup finished");
 }
 
+
 void movieEvent(Movie m) {
   m.read();
+
+  if (SOF == null) {
+    SOF = new ShimodairaOpticalFlow(m);
+  }
+  SOF.calculateFlow(m);
+  shouldDrawFlow = true;
+  
   //println("In Movie Event");
   // print("Width: " + m.width);
    
@@ -40,13 +50,20 @@ void movieEvent(Movie m) {
 
 void draw() 
 {
+  background(0);
+  //set(0, 0, SOF.cam);
   //image(movie, 0, 0, width, height);
   if (prevImage != null) {
     //println("PrevImage dimensions: " + prevImage.width + " " + prevImage.height);
-    opencv.loadImage(prevImage);
-    opencv.diff(movie);
-    PImage snapshot = opencv.getSnapshot();
-    image(snapshot, 0, 0, width, height);
+    //opencv.loadImage(prevImage);
+    //opencv.diff(movie);
+    //PImage snapshot = opencv.getSnapshot();
+    //image(snapshot, 0, 0, width, height);
+    //SOF.calculateFlow();
+    if (shouldDrawFlow) {
+      SOF.drawFlow();
+      shouldDrawFlow = false;
+    }
   } else {
     //print(prevImage);
   }
