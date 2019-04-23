@@ -159,11 +159,7 @@ class ShimodairaOpticalFlow {
 
   void calculateFlow(PImage m) {
       cam = m;
-    //if (cam.available() == true) {
       println("Calculating flow");
-      //cam.read();
-      //cam.loadPixels(); // p3D requires this, works fine w/out in 2D
-
       // clock in msec
       clockNow = millis();
       clockDiff = clockNow - clockPrev;
@@ -243,26 +239,9 @@ class ShimodairaOpticalFlow {
         }
       }
 
-      // 4th sweep : draw the flow
-      /*if (flagseg) {
-        noStroke();
-        fill(0);
-        for (int ix=0; ix<gw; ix++) {
-          int x0=ix*gs+gs2;
-          for (int iy=0; iy<gh; iy++) {
-            int y0=iy*gs+gs2;
-            int ig=iy*gw+ix;
-
-            float u=df*sflowx[ig];
-            float v=df*sflowy[ig];
-
-            float a=sqrt(u*u+v*v);
-            if (a<2.0) rect(x0, y0, gs, gs);
-          }
-        }
-      }*/
 
       // clear out our stored flow vectors
+      println("Removing stuff");
       for (int i = flows.size() - 1; i >= 0; i--) 
         flows.remove(i);
       for (int i = flows_color.size() - 1; i >= 0; i--) 
@@ -282,7 +261,7 @@ class ShimodairaOpticalFlow {
 
             // draw the line segments for optical flow
             float a=sqrt(u*u+v*v);
-            if (a>=2.0) { // draw only if the length >=2.0
+            if (a>=5.0) { // draw only if the length >=2.0
               float r=0.5*(1.0+u/(a+0.1));
               float g=0.5*(1.0+v/(a+0.1));
               float b=0.5*(2.0-(r+g));
@@ -317,7 +296,30 @@ class ShimodairaOpticalFlow {
       stroke(force_color.x, force_color.y, force_color.z);
       line (force_start.x, force_start.y, force_end.x, force_end.y);
     }
-    
+  }
+  
+  PVector calculateCenterOfMass() {
+    println("calcualte center of mass");
+    PVector sum = new PVector(0, 0);
+    ArrayList<PVector> v = (ArrayList) flows.clone();
+    for (int i = 0; i < v.size(); i++) {
+       PVector f = v.get(i);
+       if (f != null) {
+         sum.add(f);
+       }
+       //sum.add(v.get(i));
+    }
+    int denom = 1;
+    if (v.size() != 0) {
+      denom = v.size();
+    }
+    return sum.div(denom);
+  }
+  
+  void drawCenterOfMass() {
+    PVector center = calculateCenterOfMass();
+    fill(204, 102, 0);
+    ellipse(center.x, center.y, 50, 50);
   }
   
 }

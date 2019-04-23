@@ -9,7 +9,6 @@ OpenCV opencv;
 
 PImage prevImage;
 ShimodairaOpticalFlow SOF = null;
-boolean shouldDrawFlow = false;
 
 void setup() {
   size(960, 528);
@@ -19,7 +18,6 @@ void setup() {
   try
   {
     movie = new Movie(this, "rtsp://hex-cam.wh.oblong.com/h264.sdp?res=half&x0=0&y0=0&x1=1920&y1=1080&qp=20&ratelimit=10000&doublescan=0&ssn=27675");
-    println(movie);
     movie.loop();
   }
   catch (Exception e)
@@ -39,20 +37,11 @@ void movieEvent(Movie m) {
     SOF = new ShimodairaOpticalFlow(m);
   }
   SOF.calculateFlow(m);
-  shouldDrawFlow = true;
-  
-  //println("In Movie Event");
-  // print("Width: " + m.width);
-   
-  //print(" Height: " + m.height);
-  //println();
 }
 
 void draw() 
 {
   background(0);
-  //set(0, 0, SOF.cam);
-  //image(movie, 0, 0, width, height);
   if (prevImage != null) {
     //println("PrevImage dimensions: " + prevImage.width + " " + prevImage.height);
     //opencv.loadImage(prevImage);
@@ -60,12 +49,11 @@ void draw()
     //PImage snapshot = opencv.getSnapshot();
     //image(snapshot, 0, 0, width, height);
     //SOF.calculateFlow();
-    if (shouldDrawFlow) {
-      SOF.drawFlow();
-      shouldDrawFlow = false;
-    }
-  } else {
-    //print(prevImage);
+    //if (shouldDrawFlow) {
+    SOF.drawFlow();
+    SOF.drawCenterOfMass();
+      //shouldDrawFlow = false;
+    //}
   }
   
   prevImage = movie;
