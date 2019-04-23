@@ -9,7 +9,9 @@ OpenCV opencv;
 
 PImage prevImage;
 ShimodairaOpticalFlow SOF = null;
+PVector center;
 
+PVector forward = new PVector(0, -1);
 void setup() {
   size(960, 528);
   
@@ -31,8 +33,7 @@ void setup() {
     SOF = new ShimodairaOpticalFlow(cam);
   }
   
-  //Movie.supportedProtocols[0] = "rtsp";
-  opencv = new OpenCV(this, width, height);
+  center = new PVector(width/2, height/2);
   background(0);
   //try
   //{
@@ -75,5 +76,16 @@ void draw()
    PVector centerOfMass = SOF.drawAndGetCenterOfMass();
    float x = centerOfMass.x;
    float y = centerOfMass.y;
-   println("x: " + x + " y: " + y);
+   
+  
+   //println("x: " + x + " y: " + y);
+   float dist = center.dist(centerOfMass);
+   PVector direction = centerOfMass.sub(center);
+   float angle = PVector.angleBetween(direction, forward);
+   
+   if (x <= width / 2) {
+     angle += PI;
+   }
+   println("Angle: " + degrees(angle));
+   println("Dist: " + dist);
 }
