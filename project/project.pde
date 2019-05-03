@@ -58,6 +58,7 @@ void setup() {
 //  }
 //  SOF.calculateFlow(m);
 //}
+boolean hasOpened = false;
 
 void draw() 
 {
@@ -68,15 +69,14 @@ void draw()
   // calculate optical flow
   SOF.calculateFlow();
 
-  
   // draw the optical flow vectors
-  if (SOF.flagflow)
+  if (SOF.flagflow) {
     SOF.drawFlow();
+  }
     
    PVector centerOfMass = SOF.drawAndGetCenterOfMass();
    float x = centerOfMass.x;
    float y = centerOfMass.y;
-   
   
    //println("x: " + x + " y: " + y);
    float dist = center.dist(centerOfMass);
@@ -86,6 +86,30 @@ void draw()
    if (x <= width / 2) {
      angle += PI;
    }
-   println("Angle: " + degrees(angle));
-   println("Dist: " + dist);
+   float deltaX = x - width/2;
+   float deltaY = y - height/2;
+   
+   String command = formatTranslationCommand(deltaX, deltaY);
+   println(command);
+   
+   try {
+     Process p = exec(command.split(" "));
+     p.waitFor();
+     int exitVal = p.exitValue();
+     println(exitVal);
+   } catch (Exception e) {
+     println(e.getMessage());
+   }
+   
+   //println("Angle: " + degrees(angle));
+   //println("Dist: " + dist);
+}
+
+String formatTranslationCommand(float x, float y) {
+  StringBuilder sb = new StringBuilder("poke -d set-translation -i translation:[");
+  sb.append((int) (300 + x));
+  sb.append(",360,");
+  sb.append((int) (-500 + y));
+  sb.append("] tcp://10.137.124.205/kepler");
+  return sb.toString();
 }
